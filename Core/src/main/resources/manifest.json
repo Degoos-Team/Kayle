@@ -1,0 +1,18 @@
+{
+  "Group": "Degoos",
+  "Name": "Kayle",
+  "Version": "0.0.1",
+  "Description": "A kotlin framework for Hytale",
+  "Authors": [
+    {
+      "Name": "Gael Rial",
+      "Url": "https://grialc.com"
+    }
+  ],
+  "Website": "",
+  "Main": "com.degoos.kayle.Kayle",
+  "ServerVersion": "*",
+  "Dependencies": {},
+  "OptionalDependencies": {},
+  "DisabledByDefault": false
+}

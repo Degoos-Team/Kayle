@@ -1,0 +1,20 @@
+{
+  "Group": "Degoos",
+  "Name": "Kayle Examples",
+  "Version": "0.0.1",
+  "Description": "A set of examples for Kayle",
+  "Authors": [
+    {
+      "Name": "Gael Rial",
+      "Url": "https://grialc.com"
+    }
+  ],
+  "Website": "",
+  "Main": "com.degoos.kayle.examples.KayleExamples",
+  "ServerVersion": "*",
+  "Dependencies": {
+    "Degoos:Kayle": "*"
+  },
+  "OptionalDependencies": {},
+  "DisabledByDefault": false
+}
