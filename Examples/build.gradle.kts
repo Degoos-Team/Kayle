@@ -32,4 +32,8 @@ tasks.test {
 
 tasks.shadowJar {
     archiveBaseName.set("KayleExamples")
+    dependencies {
+        exclude(dependency("org.jetbrains.kotlin:.*"))
+        exclude(dependency("org.jetbrains.kotlinx:.*"))
+    }
 }
