@@ -21,7 +21,7 @@ fun Ref<EntityStore>.teleport(
 fun Ref<EntityStore>.teleport(
     transform: Transform
 ) {
-    val teleport = Teleport(transform)
+    val teleport = Teleport(transform.position, transform.rotation)
     store.putComponent(this, Teleport.getComponentType(), teleport)
 }
 
