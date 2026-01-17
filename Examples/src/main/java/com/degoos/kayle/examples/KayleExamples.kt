@@ -19,7 +19,7 @@ class KayleExamples(init: JavaPluginInit) : KotlinPlugin(init) {
     override fun start() {
         println("Hello!")
 
-        eventRegistry.registerGlobal(AddPlayerToWorldEvent::class.java) { event ->
+        val registry = eventRegistry.registerGlobal(AddPlayerToWorldEvent::class.java) { event ->
             val world = event.world
             val player = event.holder.getComponent(PlayerRef.getComponentType()) ?: return@registerGlobal
             launch(world.dispatcher) {
