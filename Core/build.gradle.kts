@@ -30,9 +30,6 @@ tasks.shadowJar {
     archiveBaseName.set("Kayle")
 }
 
-group = "com.degoos"
-version = "1.0.0"
-
 publishing {
     publications {
         create<MavenPublication>("maven") {
