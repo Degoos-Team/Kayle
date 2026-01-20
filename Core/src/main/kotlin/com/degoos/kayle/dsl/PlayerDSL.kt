@@ -1,17 +1,18 @@
 package com.degoos.kayle.dsl
 
-import com.degoos.kayle.coroutine.HytaleDispatchers
 import com.hypixel.hytale.server.core.Message
+import com.hypixel.hytale.server.core.universe.PlayerRef
+import com.hypixel.hytale.server.core.universe.Universe
 import com.hypixel.hytale.server.core.universe.world.World
 import com.hypixel.hytale.server.core.util.EventTitleUtil
-import kotlinx.coroutines.CoroutineDispatcher
 
-val World.dispatcher: CoroutineDispatcher get() = HytaleDispatchers.forWorld(this)
-
-val World.uuid get() = worldConfig.uuid
+val PlayerRef.world: World?
+    get() {
+        return Universe.get().getWorld(worldUuid ?: return null)
+    }
 
 /**
- * Broadcasts a title and optional subtitle to all players inside the world.
+ * Broadcasts a title and optional subtitle to a player.
  * This function is thread-safe.
  *
  * @param title The primary title message to display to the player.
@@ -22,7 +23,7 @@ val World.uuid get() = worldConfig.uuid
  * @param fadeInDuration The duration (in seconds) for the fade-in animation of the title. Defaults to 1.5 seconds.
  * @param fadeOutDuration The duration (in seconds) for the fade-out animation of the title. Defaults to 1.5 seconds.
  */
-fun World.broadcastTitle(
+fun PlayerRef.sendTitle(
     title: Message,
     subtitle: Message = Message.empty(),
     isMajor: Boolean = false,
@@ -31,27 +32,28 @@ fun World.broadcastTitle(
     fadeInDuration: Float = 1.5f,
     fadeOutDuration: Float = 1.5f
 ) {
-    if (isInThread) {
-        EventTitleUtil.showEventTitleToWorld(
+    val world = Universe.get().getWorld(worldUuid ?: return) ?: return
+    if (world.isInThread) {
+        EventTitleUtil.showEventTitleToPlayer(
+            this,
             title,
             subtitle,
             isMajor,
             icon,
             duration,
             fadeInDuration,
-            fadeOutDuration,
-            entityStore.store
+            fadeOutDuration
         )
-    } else execute {
-        EventTitleUtil.showEventTitleToWorld(
+    } else world.execute {
+        EventTitleUtil.showEventTitleToPlayer(
+            this,
             title,
             subtitle,
             isMajor,
             icon,
             duration,
             fadeInDuration,
-            fadeOutDuration,
-            entityStore.store
+            fadeOutDuration
         )
     }
 }
