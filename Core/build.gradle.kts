@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.shadow)
+    id("maven-publish")
 }
 
 group = "com.degoos"
@@ -27,4 +28,26 @@ tasks.test {
 
 tasks.shadowJar {
     archiveBaseName.set("Kayle")
+}
+
+group = "com.degoos"
+version = "1.0.0"
+
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+
+            groupId = "com.degoos"
+            artifactId = "kayle"
+            version = "1.0.0"
+        }
+    }
+
+    repositories {
+        maven {
+            name = "LocalBuildDir"
+            url = uri(layout.buildDirectory.dir("repo"))
+        }
+    }
 }
