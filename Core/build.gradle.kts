@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.degoos"
-version = "0.0.4-SNAPSHOT"
+version = "0.0.5-SNAPSHOT"
 
 val hytaleServerExecutablePath: String by extra
 
@@ -20,6 +20,11 @@ dependencies {
 
 kotlin {
     jvmToolchain(23)
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 tasks.test {
@@ -37,7 +42,7 @@ publishing {
 
             groupId = "com.degoos"
             artifactId = "kayle"
-            version = "0.0.4"
+            version = "0.0.5"
         }
     }
 

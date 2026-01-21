@@ -34,15 +34,25 @@ class KotlinxCodec<T>(
 ) : Codec<T> {
 
     override fun decode(bson: BsonValue, extraInfo: ExtraInfo): T? {
-        if (bson.isNull) return null
-        val jsonElement = bsonToJsonElement(bson)
-        return json.decodeFromJsonElement(serializer, jsonElement)
+        try {
+            if (bson.isNull) return null
+            val jsonElement = bsonToJsonElement(bson)
+            return json.decodeFromJsonElement(serializer, jsonElement)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            throw ex
+        }
     }
 
     override fun encode(value: T, extraInfo: ExtraInfo): BsonValue {
-        if (value == null) return BsonNull.VALUE
-        val jsonElement = json.encodeToJsonElement(serializer, value)
-        return jsonElementToBson(jsonElement)
+        try {
+            if (value == null) return BsonNull.VALUE
+            val jsonElement = json.encodeToJsonElement(serializer, value)
+            return jsonElementToBson(jsonElement)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            throw ex
+        }
     }
 
     override fun toSchema(context: SchemaContext): Schema {
