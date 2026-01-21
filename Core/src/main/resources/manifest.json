@@ -1,7 +1,7 @@
 {
   "Group": "Degoos",
   "Name": "Kayle",
-  "Version": "0.0.1",
+  "Version": "0.0.4",
   "Description": "A kotlin framework for Hytale",
   "Authors": [
     {
