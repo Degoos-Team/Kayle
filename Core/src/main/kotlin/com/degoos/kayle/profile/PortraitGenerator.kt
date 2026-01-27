@@ -23,7 +23,7 @@ object PortraitGenerator {
     fun generateAvatarPNG(rawSkin: String, view: PortraitView, client: HttpClient? = null): ByteArray? {
         val c = client ?: HttpClient.newHttpClient()
         println(rawSkin)
-        val url = "$API_URL/${view.apiKey}?recipe=${Base64URL.encode(rawSkin.toByteArray())}"
+        val url = "$API_URL${view.apiKey}?recipe=${Base64URL.encode(rawSkin.toByteArray())}"
         val request =
             HttpRequest.newBuilder(URI.create(url))
                 .header("User-Agent", AuthConfig.USER_AGENT)
@@ -50,8 +50,8 @@ object PortraitGenerator {
             }
 
             else -> {
-
                 println("Failed to generate avatar. Status code: ${response.statusCode()}")
+                println(url)
                 return null
             }
         }

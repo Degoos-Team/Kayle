@@ -1,12 +1,14 @@
 package com.degoos.kayle.examples
 
 import com.degoos.kayle.KotlinPlugin
-import com.degoos.kayle.profile.PlayerProfile
+import com.degoos.kayle.profile.PlayerProfileCache
+import com.degoos.kayle.profile.PortraitView
 import com.hypixel.hytale.server.core.Message
 import com.hypixel.hytale.server.core.command.system.AbstractCommand
 import com.hypixel.hytale.server.core.command.system.CommandContext
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit
+import java.io.File
 import java.net.http.HttpClient
 import java.util.concurrent.CompletableFuture
 
@@ -34,10 +36,11 @@ class KayleExamples(init: JavaPluginInit) : KotlinPlugin(init) {
 
             override fun execute(context: CommandContext): CompletableFuture<Void?>? {
                 username.get(context)?.let { name ->
-                    val profile = PlayerProfile.fetch(name, http)
-                    if (profile == null) {
-                        context.sendMessage(Message.raw("Profile not found."))
-                    } else {
+                    PlayerProfileCache.fetch(name).whenComplete { profile, throwable ->
+                        if (profile == null) {
+                            context.sendMessage(Message.raw("Profile not found."))
+                            return@whenComplete
+                        }
                         context.sendMessage(Message.raw("Name: ${profile.username}"))
                         context.sendMessage(Message.raw("UUID: ${profile.uuid}"))
                         profile.skin?.let { skin ->
@@ -62,8 +65,11 @@ class KayleExamples(init: JavaPluginInit) : KotlinPlugin(init) {
                             context.sendMessage(Message.raw("Gloves: ${skin.gloves}"))
                             context.sendMessage(Message.raw("Cape: ${skin.cape}"))
                         }
-                        profile.generateAvatarPNG(http)
+
+                        val file = File("avatar.png")
+                        profile.generateAvatarPNG(PortraitView.AVATAR)?.let { file.writeBytes(it) }
                     }
+
                 }
                 return null
             }
