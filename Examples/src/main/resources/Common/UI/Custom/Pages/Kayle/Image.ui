@@ -1,0 +1,4 @@
+AssetImage #Image {
+  Anchor: (Width: 512, Height: 512);
+  AssetPath: "";
+}

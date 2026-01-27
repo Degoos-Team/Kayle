@@ -16,5 +16,6 @@
     "Degoos:Kayle": "*"
   },
   "OptionalDependencies": {},
-  "DisabledByDefault": false
+  "DisabledByDefault": false,
+  "IncludesAssetPack": true
 }

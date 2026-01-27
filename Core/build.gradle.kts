@@ -15,6 +15,8 @@ dependencies {
     api(libs.kotlinx.coroutines.core)
     api(libs.kotlinx.serialization.json)
 
+    implementation(libs.caffeine)
+
     testImplementation(kotlin("test"))
 }
 
