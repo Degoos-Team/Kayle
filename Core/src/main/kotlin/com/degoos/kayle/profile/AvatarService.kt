@@ -4,6 +4,7 @@ import com.degoos.kayle.Kayle
 import com.degoos.kayle.util.CaffeineService
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.hypixel.hytale.server.core.auth.AuthConfig
+import com.nimbusds.jose.util.Base64URL
 import kotlinx.coroutines.future.await
 import java.net.URI
 import java.net.http.HttpClient
@@ -46,7 +47,7 @@ object PortraitGenerator {
         client: HttpClient
     ): ByteArray? {
         return try {
-            val encodedSkin = Base64.getUrlEncoder().encodeToString(rawSkin.toByteArray())
+            val encodedSkin = Base64URL.encode(rawSkin.toByteArray())
             val url = "$API_URL${view.apiKey}?recipe=$encodedSkin"
 
             val request = HttpRequest.newBuilder(URI.create(url))

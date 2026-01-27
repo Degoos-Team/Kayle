@@ -20,6 +20,22 @@ import java.net.http.HttpResponse
 import java.time.Duration
 import java.util.*
 
+/**
+ * Represents a player's profile containing their UUID, username, and skin information.
+ *
+ * This class deserializes the player profile data and provides functionality to parse
+ * and manage skin data through related properties and services.
+ *
+ * @property uuid The unique identifier of the player.
+ * @property username The player's username.
+ * @property rawSkin The raw JSON string containing the player's skin data.
+ *
+ * @constructor Creates a player profile with the provided UUID, username, and raw skin data.
+ * Initializes a transient `AvatarService` instance for skin-related operations.
+ *
+ * @see AvatarService
+ * @see PlayerSkin
+ */
 @Serializable
 data class PlayerProfile(val uuid: UUID, val username: String, @SerialName("skin") val rawSkin: String) {
 
@@ -43,9 +59,25 @@ data class PlayerProfile(val uuid: UUID, val username: String, @SerialName("skin
             prettyPrint = true
         }
 
+        /**
+         * Fetches the `PlayerProfile` associated with the specified username by querying Hytale's API.
+         * If an HTTP client is not provided, a default client will be created and used for the request.
+         *
+         * @param userName The username of the player whose profile is to be fetched. This must be a valid string.
+         * @param client An optional `HttpClient` to be used for the HTTP request. If `null`, a new default client will be used.
+         * @return The `PlayerProfile` of the user, or `null` if the profile could not be retrieved.
+         */
         suspend fun fetch(userName: String, client: HttpClient? = null) =
             process("https://account-data.hytale.com/profile/username/$userName", client)
 
+        /**
+         * Fetches the `PlayerProfile` associated with the specified UUID by querying Hytale's API.
+         * If an HTTP client is not provided, a default client will be created and used for the request.
+         *
+         * @param uuid The UUID of the player whose profile is to be fetched.
+         * @param client An optional `HttpClient` to be used for the HTTP request. If `null`, a new default client will be used.
+         * @return The `PlayerProfile` of the user, or `null` if the profile could not be retrieved.
+         */
         suspend fun fetch(uuid: UUID, client: HttpClient? = null) =
             process("https://account-data.hytale.com/profile/uuid/$uuid", client)
 

@@ -1,15 +1,14 @@
 package com.degoos.kayle.profile
 
 import com.degoos.kayle.Kayle
+import com.degoos.kayle.asset.AvatarAssetProvider
 import com.degoos.kayle.util.CaffeineService
 import com.github.benmanes.caffeine.cache.Caffeine
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
-import kotlinx.coroutines.future.await
 import java.time.Duration
 import java.util.*
-import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -71,8 +70,8 @@ object PlayerProfileCache : CaffeineService<UUID, PlayerProfile>(Kayle.instance)
     }
 
     override fun Caffeine<Any, Any>.configure() {
-        maximumSize(1000)
-        expireAfterAccess(Duration.ofMinutes(10))
+        maximumSize(1000L)
+        expireAfterWrite(Duration.ofHours(10))
         removalListener<UUID, PlayerProfile> { _, value, _ -> value?.let { nameIndex.remove(it.username.lowercase()) } }
     }
 
