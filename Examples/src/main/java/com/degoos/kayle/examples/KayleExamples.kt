@@ -1,5 +1,6 @@
 package com.degoos.kayle.examples
 
+import com.degoos.kayle.Kayle
 import com.degoos.kayle.KotlinPlugin
 import com.degoos.kayle.profile.PlayerProfileCache
 import com.degoos.kayle.profile.PortraitView
@@ -8,8 +9,8 @@ import com.hypixel.hytale.server.core.command.system.AbstractCommand
 import com.hypixel.hytale.server.core.command.system.CommandContext
 import com.hypixel.hytale.server.core.command.system.arguments.types.ArgTypes
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit
+import kotlinx.coroutines.future.future
 import java.io.File
-import java.net.http.HttpClient
 import java.util.concurrent.CompletableFuture
 
 class KayleExamples(init: JavaPluginInit) : KotlinPlugin(init) {
@@ -30,16 +31,17 @@ class KayleExamples(init: JavaPluginInit) : KotlinPlugin(init) {
         commandRegistry.registerCommand(object : AbstractCommand("kayle-info", "Kayle example") {
 
 
-            val http = HttpClient.newHttpClient()
             val username = withRequiredArg("name", "The name of the user", ArgTypes.STRING)
 
 
             override fun execute(context: CommandContext): CompletableFuture<Void?>? {
-                username.get(context)?.let { name ->
-                    PlayerProfileCache.fetch(name).whenComplete { profile, throwable ->
+                return username.get(context)?.let { name ->
+                    Kayle.instance.future {
+                        val profile = PlayerProfileCache.fetch(name)
+
                         if (profile == null) {
                             context.sendMessage(Message.raw("Profile not found."))
-                            return@whenComplete
+                            return@future null
                         }
                         context.sendMessage(Message.raw("Name: ${profile.username}"))
                         context.sendMessage(Message.raw("UUID: ${profile.uuid}"))
@@ -67,11 +69,10 @@ class KayleExamples(init: JavaPluginInit) : KotlinPlugin(init) {
                         }
 
                         val file = File("avatar.png")
-                        profile.generateAvatarPNG(PortraitView.AVATAR)?.let { file.writeBytes(it) }
-                    }
-
+                        profile.avatarService.fetch(PortraitView.AVATAR)?.let { file.writeBytes(it) }
+                        profile
+                    }.thenRun { }
                 }
-                return null
             }
 
         })

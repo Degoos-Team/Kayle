@@ -1,11 +1,16 @@
 package com.degoos.kayle.profile
 
+import com.degoos.kayle.Kayle
+import com.degoos.kayle.util.CaffeineService
 import com.github.benmanes.caffeine.cache.Caffeine
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.future.await
 import java.time.Duration
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ForkJoinPool
 
 /**
  * Provides a caching mechanism for `PlayerProfile` objects to reduce the cost of repeated fetch operations.
@@ -28,32 +33,10 @@ import java.util.concurrent.ForkJoinPool
  *   does not correspond to a cached profile, a slow external request is issued to fetch and cache the profile. Pending
  *   requests for the same username are tracked and re-used to avoid redundancy.
  */
-object PlayerProfileCache {
-
-    private val executor = ForkJoinPool.commonPool()
+object PlayerProfileCache : CaffeineService<UUID, PlayerProfile>(Kayle.instance) {
 
     private val nameIndex = ConcurrentHashMap<String, UUID>()
-
-    private val pendingRequests = ConcurrentHashMap<String, CompletableFuture<PlayerProfile?>>()
-
-    private val cache = Caffeine.newBuilder()
-        .maximumSize(1000)
-        .expireAfterAccess(Duration.ofMinutes(10))
-        .removalListener<UUID, PlayerProfile> { _, value, _ -> value?.let { nameIndex.remove(it.username.lowercase()) } }
-        .buildAsync<UUID, PlayerProfile?>()
-
-    /**
-     * Fetches the `PlayerProfile` of a user based on their UUID.
-     * The fetched `PlayerProfile` is cached for future lookups.
-     *
-     * @param uuid The UUID of the player whose profile is to be retrieved.
-     * @return A `CompletableFuture` containing the `PlayerProfile` of the player, or `null` if the profile could not be fetched.
-     */
-    fun fetch(uuid: UUID) = cache.get(uuid) { uuid, executor ->
-        CompletableFuture.supplyAsync({
-            PlayerProfile.fetch(uuid).also { profile -> profile?.let { nameIndex[it.username.lowercase()] = uuid } }
-        }, executor)
-    }
+    private val pendingRequests = ConcurrentHashMap<String, Deferred<PlayerProfile?>>()
 
     /**
      * Fetches the `PlayerProfile` of a user based on their username.
@@ -63,22 +46,37 @@ object PlayerProfileCache {
      * @param userName The username of the player whose profile is to be fetched. Case-insensitive.
      * @return A `CompletableFuture` containing the `PlayerProfile` of the player, or `null` if the profile could not be fetched.
      */
-    fun fetch(userName: String): CompletableFuture<PlayerProfile?> {
+    suspend fun fetch(userName: String): PlayerProfile? {
         val lower = userName.lowercase()
         val uuid = nameIndex[lower]
         if (uuid != null) {
             return fetch(uuid)
         }
 
-        return pendingRequests.computeIfAbsent(lower) { key ->
-            CompletableFuture.supplyAsync({
-                val profile = PlayerProfile.fetch(userName) // Llamada lenta a DB
+        @Suppress("DeferredResultUnused")
+        val def = pendingRequests.computeIfAbsent(lower) { key ->
+            Kayle.instance.async(Dispatchers.IO) {
+                val profile = PlayerProfile.fetch(userName)
                 if (profile != null) {
                     nameIndex[key] = profile.uuid
-                    cache.asMap().putIfAbsent(profile.uuid, CompletableFuture.completedFuture(profile))
+                    put(profile.uuid, profile)
                 }
                 profile
-            }, executor).whenComplete { _, _ -> pendingRequests.remove(key) }
+            }.apply {
+                invokeOnCompletion { pendingRequests.remove(key) }
+            }
         }
+
+        return def.await()
+    }
+
+    override fun Caffeine<Any, Any>.configure() {
+        maximumSize(1000)
+        expireAfterAccess(Duration.ofMinutes(10))
+        removalListener<UUID, PlayerProfile> { _, value, _ -> value?.let { nameIndex.remove(it.username.lowercase()) } }
+    }
+
+    override suspend fun fetchFromSource(key: UUID): PlayerProfile? {
+        return PlayerProfile.fetch(key).also { profile -> profile?.let { nameIndex[it.username.lowercase()] = key } }
     }
 }
