@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.degoos"
-version = "0.0.5-SNAPSHOT"
+version = "0.0.6-SNAPSHOT"
 
 val hytaleServerExecutablePath: String by extra
 
@@ -44,7 +44,7 @@ publishing {
 
             groupId = "com.degoos"
             artifactId = "kayle"
-            version = "0.0.5"
+            version = "0.0.6"
         }
     }
 
