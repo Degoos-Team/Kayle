@@ -1,5 +1,6 @@
 package com.degoos.kayle
 
+import com.hypixel.hytale.server.core.auth.SessionServiceClient
 import com.hypixel.hytale.server.core.plugin.JavaPlugin
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit
 import kotlinx.coroutines.CancellationException
