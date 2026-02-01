@@ -53,7 +53,7 @@ object Vector3fSerializer : KSerializer<Vector3f> {
 
     override fun deserialize(decoder: Decoder): Vector3f {
         val array = decoder.decodeSerializableValue(FloatArraySerializer())
-        require(array.size == 3) { "Vector3d array must have 3 elements" }
+        require(array.size == 3) { "Vector3f array must have 3 elements" }
         return Vector3f(array[0], array[1], array[2])
     }
 }
