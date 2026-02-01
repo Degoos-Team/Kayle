@@ -1,4 +1,4 @@
-package com.degoos.kayle.dsl
+package com.degoos.kayle.extension
 
 import com.degoos.kayle.coroutine.HytaleDispatchers
 import com.hypixel.hytale.server.core.Message

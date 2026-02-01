@@ -1,4 +1,4 @@
-package com.degoos.kayle.dsl
+package com.degoos.kayle.extension
 
 import com.hypixel.hytale.component.Ref
 import com.hypixel.hytale.math.vector.Transform

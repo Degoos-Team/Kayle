@@ -4,8 +4,10 @@ plugins {
     id("maven-publish")
 }
 
+val kayleVersion = "0.0.7"
+
 group = "com.degoos"
-version = "0.0.6-SNAPSHOT"
+version = kayleVersion
 
 val hytaleServerExecutablePath: String by extra
 
@@ -37,6 +39,19 @@ tasks.shadowJar {
     archiveBaseName.set("Kayle")
 }
 
+tasks.named<ProcessResources>("processResources") {
+    val replaceProperties = mapOf(
+        "plugin_name" to "Kayle",
+        "plugin_version" to project.version,
+    )
+
+    filesMatching("manifest.json") {
+        expand(replaceProperties)
+    }
+
+    inputs.properties(replaceProperties)
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
@@ -44,7 +59,7 @@ publishing {
 
             groupId = "com.degoos"
             artifactId = "kayle"
-            version = "0.0.6"
+            version = kayleVersion
         }
     }
 

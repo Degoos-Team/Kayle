@@ -2,8 +2,8 @@ package com.degoos.kayle.examples.command
 
 import com.degoos.kayle.Kayle
 import com.degoos.kayle.asset.AvatarAssetProvider
-import com.degoos.kayle.dsl.dispatcher
-import com.degoos.kayle.dsl.world
+import com.degoos.kayle.extension.dispatcher
+import com.degoos.kayle.extension.world
 import com.degoos.kayle.profile.PlayerProfileCache
 import com.degoos.kayle.profile.PortraitView
 import com.hypixel.hytale.server.core.Message
