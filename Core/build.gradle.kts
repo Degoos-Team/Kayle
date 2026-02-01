@@ -4,7 +4,7 @@ plugins {
     id("maven-publish")
 }
 
-val kayleVersion = "0.0.7"
+val kayleVersion = "0.0.8"
 
 group = "com.degoos"
 version = kayleVersion
