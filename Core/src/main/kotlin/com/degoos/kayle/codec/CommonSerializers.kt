@@ -1,8 +1,8 @@
 package com.degoos.kayle.codec
 
+import com.hypixel.hytale.math.vector.Rotation3f
 import com.hypixel.hytale.math.vector.Transform
-import com.hypixel.hytale.math.vector.Vector3d
-import com.hypixel.hytale.math.vector.Vector3f
+import org.joml.Vector3d
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.builtins.DoubleArraySerializer
@@ -42,19 +42,19 @@ object Vector3dSerializer : KSerializer<Vector3d> {
     }
 }
 
-object Vector3fSerializer : KSerializer<Vector3f> {
+object Rotation3fSerializer : KSerializer<Rotation3f> {
 
     override val descriptor = FloatArraySerializer().descriptor
 
-    override fun serialize(encoder: Encoder, value: Vector3f) {
+    override fun serialize(encoder: Encoder, value: Rotation3f) {
         val array = floatArrayOf(value.x, value.y, value.z)
         encoder.encodeSerializableValue(FloatArraySerializer(), array)
     }
 
-    override fun deserialize(decoder: Decoder): Vector3f {
+    override fun deserialize(decoder: Decoder): Rotation3f {
         val array = decoder.decodeSerializableValue(FloatArraySerializer())
-        require(array.size == 3) { "Vector3f array must have 3 elements" }
-        return Vector3f(array[0], array[1], array[2])
+        require(array.size == 3) { "Rotation3f array must have 3 elements" }
+        return Rotation3f(array[0], array[1], array[2])
     }
 }
 
@@ -63,7 +63,7 @@ object TransformSerializer : KSerializer<Transform> {
     @Serializable
     data class Surrogate(
         @Serializable(Vector3dSerializer::class) val position: Vector3d,
-        @Serializable(Vector3fSerializer::class) val rotation: Vector3f
+        @Serializable(Rotation3fSerializer::class) val rotation: Rotation3f
     )
 
     override val descriptor = Surrogate.serializer().descriptor

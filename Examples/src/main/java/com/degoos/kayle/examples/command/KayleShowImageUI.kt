@@ -22,14 +22,14 @@ class KayleShowImageUI : AbstractPlayerCommand(
 
     override fun execute(
         context: CommandContext,
-        store: Store<EntityStore?>,
-        ref: Ref<EntityStore?>,
+        store: Store<EntityStore>,
+        ref: Ref<EntityStore>,
         playerRef: PlayerRef,
         world: World
     ) {
         val path = path.get(context)
 
-        val player = context.senderAs(Player::class.java)
+        val player = store.getComponent(ref, Player.getComponentType()) ?: return
         player.pageManager.openCustomPage(ref, store, ImagePage(playerRef, path))
     }
 

@@ -1,6 +1,5 @@
 package com.degoos.kayle.formatter
 
-import com.hypixel.hytale.protocol.MaybeBool
 import com.hypixel.hytale.server.core.Message
 import kotlin.math.max
 
@@ -51,7 +50,7 @@ internal object MessageStyler {
         if (state.bold) msg.bold(true)
         if (state.italic) msg.italic(true)
         if (state.monospace) msg.monospace(true)
-        if (state.underlined) msg.formattedMessage.underlined = MaybeBool.True
+        if (state.underlined) msg.formattedMessage.underlined = true
         state.link?.let { msg.link(it) }
     }
 }

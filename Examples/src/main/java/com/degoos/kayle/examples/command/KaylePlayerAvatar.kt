@@ -55,10 +55,10 @@ class KaylePlayerAvatar : AbstractCommand("avatar", "Loads a player avatar and s
     }
 
     private fun openGUI(context: CommandContext, path: String) {
-        val player = context.senderAs(Player::class.java)
-        val ref = player.reference ?: return
+        val ref = context.senderAsPlayerRef() ?: return
         Kayle.instance.launch(ref.world.dispatcher) {
             val playerRef = ref.store.getComponent(ref, PlayerRef.getComponentType()) ?: return@launch
+            val player = ref.store.getComponent(ref, Player.getComponentType()) ?: return@launch
             player.pageManager.openCustomPage(ref, ref.store, ImagePage(playerRef, path))
         }
     }
