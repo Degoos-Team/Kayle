@@ -40,7 +40,7 @@ import java.util.*
 data class PlayerProfile(val uuid: UUID, val username: String, @SerialName("skin") val rawSkin: String) {
 
     @Transient
-    val avatarService = AvatarService(rawSkin)
+    val avatarService = AvatarService(uuid)
 
     val skin by lazy {
         try {

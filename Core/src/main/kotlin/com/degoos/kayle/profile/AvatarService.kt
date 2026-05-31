@@ -4,7 +4,6 @@ import com.degoos.kayle.Kayle
 import com.degoos.kayle.util.CaffeineService
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.hypixel.hytale.server.core.auth.AuthConfig
-import com.nimbusds.jose.util.Base64URL
 import kotlinx.coroutines.future.await
 import java.net.URI
 import java.net.http.HttpClient
@@ -20,7 +19,7 @@ enum class PortraitView(val apiKey: String) {
     AVATAR("avatar")
 }
 
-class AvatarService(private val rawSkin: String) : CaffeineService<PortraitView, ByteArray>(Kayle.instance) {
+class AvatarService(private val uuid: UUID) : CaffeineService<PortraitView, ByteArray>(Kayle.instance) {
 
     companion object {
         private val client = HttpClient.newBuilder()
@@ -34,22 +33,25 @@ class AvatarService(private val rawSkin: String) : CaffeineService<PortraitView,
     }
 
     override suspend fun fetchFromSource(key: PortraitView) =
-        PortraitGenerator.generateAvatarPNG(rawSkin, key, client)
+        PortraitGenerator.generateAvatarPNG(uuid, key, client)
 }
 
 object PortraitGenerator {
 
-    const val API_URL = "https://hytlskins.com/skin/recipe/"
+    private const val BASE_URL = "https://crafthead.net/hytale"
+
+    private fun endpoint(view: PortraitView) = when (view) {
+        PortraitView.FACE, PortraitView.AVATAR -> "avatar"
+        PortraitView.FRONT, PortraitView.BACK -> "bWht"
+    }
 
     suspend fun generateAvatarPNG(
-        rawSkin: String,
+        uuid: UUID,
         view: PortraitView,
         client: HttpClient
     ): ByteArray? {
         return try {
-            val encodedSkin = Base64URL.encode(rawSkin.toByteArray())
-            val url = "$API_URL${view.apiKey}?recipe=$encodedSkin"
-
+            val url = "$BASE_URL/${endpoint(view)}/$uuid"
             val request = HttpRequest.newBuilder(URI.create(url))
                 .header("User-Agent", AuthConfig.USER_AGENT)
                 .timeout(Duration.ofSeconds(5))
@@ -60,14 +62,12 @@ object PortraitGenerator {
 
             if (response.statusCode() == 200) {
                 val body = response.body()
-                if (body != null && body.isNotEmpty()) {
-                    return body
-                }
+                if (body != null && body.isNotEmpty()) body else null
             } else {
                 println("Failed to generate avatar. Status code: ${response.statusCode()}")
                 println("URL: $url")
+                null
             }
-            null
         } catch (e: Exception) {
             e.printStackTrace()
             null
