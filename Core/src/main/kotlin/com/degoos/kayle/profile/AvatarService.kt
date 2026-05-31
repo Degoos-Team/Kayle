@@ -4,6 +4,7 @@ import com.degoos.kayle.Kayle
 import com.degoos.kayle.util.CaffeineService
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.hypixel.hytale.server.core.auth.AuthConfig
+import com.nimbusds.jose.util.Base64URL
 import kotlinx.coroutines.future.await
 import java.net.URI
 import java.net.http.HttpClient
@@ -19,7 +20,74 @@ enum class PortraitView(val apiKey: String) {
     AVATAR("avatar")
 }
 
-class AvatarService(private val uuid: UUID) : CaffeineService<PortraitView, ByteArray>(Kayle.instance) {
+interface PortraitService {
+    suspend fun generate(uuid: UUID, rawSkin: String, view: PortraitView, client: HttpClient): ByteArray?
+}
+
+/**
+ * Renders portraits by sending the raw skin recipe to an external rendering service.
+ * Compatible with any service that accepts a base64url-encoded recipe as a query parameter.
+ * Originally designed for hytlskins.com: RecipePortraitService("https://hytlskins.com/skin/recipe/")
+ */
+class RecipePortraitService(val baseUrl: String) : PortraitService {
+
+    override suspend fun generate(uuid: UUID, rawSkin: String, view: PortraitView, client: HttpClient): ByteArray? {
+        return try {
+            val encodedSkin = Base64URL.encode(rawSkin.toByteArray())
+            val url = "$baseUrl${view.apiKey}?recipe=$encodedSkin"
+            val request = HttpRequest.newBuilder(URI.create(url))
+                .header("User-Agent", AuthConfig.USER_AGENT)
+                .timeout(Duration.ofSeconds(5))
+                .GET()
+                .build()
+            val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).await()
+            if (response.statusCode() == 200) {
+                response.body()?.takeIf { it.isNotEmpty() }
+            } else {
+                println("RecipePortraitService: status ${response.statusCode()} for $url")
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+}
+
+/**
+ * Renders portraits via crafthead.net using the player UUID directly.
+ * No recipe encoding required. Portraits are cached 24h by Crafthead's CDN.
+ */
+class CraftheadPortraitService : PortraitService {
+
+    private fun endpoint(view: PortraitView) = when (view) {
+        PortraitView.FACE, PortraitView.AVATAR -> "avatar"
+        PortraitView.FRONT, PortraitView.BACK -> "bust"
+    }
+
+    override suspend fun generate(uuid: UUID, rawSkin: String, view: PortraitView, client: HttpClient): ByteArray? {
+        return try {
+            val url = "https://crafthead.net/hytale/${endpoint(view)}/$uuid"
+            val request = HttpRequest.newBuilder(URI.create(url))
+                .header("User-Agent", AuthConfig.USER_AGENT)
+                .timeout(Duration.ofSeconds(5))
+                .GET()
+                .build()
+            val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).await()
+            if (response.statusCode() == 200) {
+                response.body()?.takeIf { it.isNotEmpty() }
+            } else {
+                println("CraftheadPortraitService: status ${response.statusCode()} for $url")
+                null
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+}
+
+class AvatarService(private val uuid: UUID, private val rawSkin: String) : CaffeineService<PortraitView, ByteArray>(Kayle.instance) {
 
     companion object {
         private val client = HttpClient.newBuilder()
@@ -33,44 +101,19 @@ class AvatarService(private val uuid: UUID) : CaffeineService<PortraitView, Byte
     }
 
     override suspend fun fetchFromSource(key: PortraitView) =
-        PortraitGenerator.generateAvatarPNG(uuid, key, client)
+        PortraitGenerator.generate(uuid, rawSkin, key, client)
 }
 
+/**
+ * Singleton that delegates portrait generation to the configured [PortraitService].
+ * Defaults to [CraftheadPortraitService]. Override [service] at startup to switch implementations:
+ *
+ *   PortraitGenerator.service = RecipePortraitService("https://your-renderer.example.com/skin/recipe/")
+ */
 object PortraitGenerator {
 
-    private const val BASE_URL = "https://crafthead.net/hytale"
+    var service: PortraitService = CraftheadPortraitService()
 
-    private fun endpoint(view: PortraitView) = when (view) {
-        PortraitView.FACE, PortraitView.AVATAR -> "avatar"
-        PortraitView.FRONT, PortraitView.BACK -> "bWht"
-    }
-
-    suspend fun generateAvatarPNG(
-        uuid: UUID,
-        view: PortraitView,
-        client: HttpClient
-    ): ByteArray? {
-        return try {
-            val url = "$BASE_URL/${endpoint(view)}/$uuid"
-            val request = HttpRequest.newBuilder(URI.create(url))
-                .header("User-Agent", AuthConfig.USER_AGENT)
-                .timeout(Duration.ofSeconds(5))
-                .GET()
-                .build()
-
-            val response = client.sendAsync(request, HttpResponse.BodyHandlers.ofByteArray()).await()
-
-            if (response.statusCode() == 200) {
-                val body = response.body()
-                if (body != null && body.isNotEmpty()) body else null
-            } else {
-                println("Failed to generate avatar. Status code: ${response.statusCode()}")
-                println("URL: $url")
-                null
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-    }
+    suspend fun generate(uuid: UUID, rawSkin: String, view: PortraitView, client: HttpClient): ByteArray? =
+        service.generate(uuid, rawSkin, view, client)
 }
