@@ -1,5 +1,6 @@
 package com.degoos.kayle.extension
 
+import com.hypixel.hytale.protocol.packets.interface_.EventTitleStyle
 import com.hypixel.hytale.server.core.Message
 import com.hypixel.hytale.server.core.universe.PlayerRef
 import com.hypixel.hytale.server.core.universe.Universe
@@ -17,7 +18,7 @@ val PlayerRef.world: World?
  *
  * @param title The primary title message to display to the player.
  * @param subtitle The secondary subtitle message to display. Defaults to an empty message.
- * @param isMajor Indicates whether the broadcast is a major event. Defaults to false.
+ * @param style The visual style of the title. Defaults to [EventTitleStyle.Default].
  * @param icon An optional icon to display alongside the title. Defaults to null.
  * @param duration The total duration (in seconds) for which the title is displayed. Defaults to 4.0 seconds.
  * @param fadeInDuration The duration (in seconds) for the fade-in animation of the title. Defaults to 1.5 seconds.
@@ -26,34 +27,53 @@ val PlayerRef.world: World?
 fun PlayerRef.sendTitle(
     title: Message,
     subtitle: Message = Message.empty(),
-    isMajor: Boolean = false,
+    style: EventTitleStyle = EventTitleStyle.Default,
     icon: String? = null,
     duration: Float = 4.0f,
     fadeInDuration: Float = 1.5f,
     fadeOutDuration: Float = 1.5f
 ) {
-    val world = Universe.get().getWorld(worldUuid ?: return) ?: return
-    if (world.isInThread) {
+    val world = this.world ?: return
+    val show = {
         EventTitleUtil.showEventTitleToPlayer(
             this,
             title,
             subtitle,
-            isMajor,
-            icon,
-            duration,
-            fadeInDuration,
-            fadeOutDuration
-        )
-    } else world.execute {
-        EventTitleUtil.showEventTitleToPlayer(
-            this,
-            title,
-            subtitle,
-            isMajor,
+            style,
             icon,
             duration,
             fadeInDuration,
             fadeOutDuration
         )
     }
+    if (world.isInThread) show() else world.execute(show)
 }
+
+/**
+ * Sends a title using the legacy major/default flag.
+ */
+@Deprecated(
+    "Hytale replaced the isMajor flag with EventTitleStyle.",
+    ReplaceWith(
+        "sendTitle(title, subtitle, if (isMajor) EventTitleStyle.Major else EventTitleStyle.Default, " +
+            "icon, duration, fadeInDuration, fadeOutDuration)",
+        "com.hypixel.hytale.protocol.packets.interface_.EventTitleStyle"
+    )
+)
+fun PlayerRef.sendTitle(
+    title: Message,
+    subtitle: Message,
+    isMajor: Boolean,
+    icon: String? = null,
+    duration: Float = 4.0f,
+    fadeInDuration: Float = 1.5f,
+    fadeOutDuration: Float = 1.5f
+) = sendTitle(
+    title,
+    subtitle,
+    if (isMajor) EventTitleStyle.Major else EventTitleStyle.Default,
+    icon,
+    duration,
+    fadeInDuration,
+    fadeOutDuration
+)
