@@ -2,14 +2,14 @@
   "Group": "Degoos",
   "Name": "${plugin_name}",
   "Version": "${plugin_version}",
-  "Description": "A kotlin framework for Hytale",
+  "Description": "A Kotlin framework for Hytale plugins: the Kotlin runtime, coroutines, serialization codecs and helpers shared by the plugins that depend on it.",
   "Authors": [
     {
       "Name": "Gael Rial",
       "Url": "https://grialc.com"
     }
   ],
-  "Website": "",
+  "Website": "https://github.com/Degoos-Team/Kayle",
   "Main": "com.degoos.kayle.Kayle",
   "ServerVersion": "*",
   "Dependencies": {},
