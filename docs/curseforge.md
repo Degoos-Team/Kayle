@@ -28,4 +28,4 @@ For plugin developers it also has the bits we kept rewriting across Degoos plugi
 
 To build against it, use `com.degoos:kayle` and add `"Degoos:Kayle": "*"` to your manifest's dependencies.
 
-Made by Gael Rial and Antonio Terrero (Degoos Team). Bugs and ideas go to GitHub issues.
+Made by the Degoos Team. Bugs and ideas go to GitHub issues.
