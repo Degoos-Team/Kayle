@@ -1,6 +1,14 @@
+<img src="docs/curseforge/logo.png" alt="Kayle logo" width="120" align="right">
+
 # Kayle
 
 Kayle is a Kotlin-based framework for developing plugins and mods for the Hytale server. It provides a set of utilities and abstractions to simplify server-side development.
+
+## Installing on a server
+
+If a plugin needs Kayle, download `Kayle-<version>-all.jar` from the
+[releases](https://github.com/Degoos-Team/Kayle/releases) and put it in the server's `mods/` folder next to that
+plugin. There is nothing to configure.
 
 ## Prerequisites
 
