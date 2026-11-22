@@ -1,33 +1,31 @@
 # CurseForge page
 
-Text and settings for the Kayle project on CurseForge. Kayle is a library: players don't use it directly, server owners
-install it because a plugin requires it. Upload the JAR of a tagged release (`Kayle-<version>-all.jar`), never a local
-build.
+What we paste into the Kayle project on CurseForge. Upload `Kayle-<version>-all.jar` from a tagged release, not a
+local build. Logo: `docs/curseforge/logo.png`.
 
-- **Name:** Kayle
-- **Summary (short description):** The Kotlin framework behind Degoos plugins: install it when a plugin lists Kayle as a
-  dependency.
-- **Category:** Library / API
-- **License:** MIT
-- **Source:** https://github.com/Degoos-Team/Kayle
-- **Issues:** https://github.com/Degoos-Team/Kayle/issues
-- **Dependencies:** none
-- **Game version:** the Hytale server versions the release was tested on
+- Name: Kayle
+- Summary: The Kotlin library our Hytale plugins run on. Install it if a plugin asks for it.
+- Category: Library / API
+- License: MIT
+- Source: https://github.com/Degoos-Team/Kayle
+- Issues: https://github.com/Degoos-Team/Kayle/issues
 
 ## Description
 
-Kayle is a Kotlin framework for Hytale server plugins. It ships the Kotlin standard library, reflection, coroutines and
-kotlinx.serialization once for the whole server, so plugins built on it stay small and share one runtime.
+Kayle is a library, not something you play with. If a plugin says it needs Kayle, drop the JAR into `mods/` next to
+it and you're done. No config.
 
-**Server owners:** you only need Kayle when another plugin requires it. Put the JAR in `mods/` next to that plugin; it
-has no configuration.
+Why it exists: we write our plugins in Kotlin, and shipping the whole Kotlin runtime inside every plugin got old fast.
+Kayle carries it once for the whole server (standard library, coroutines, serialization), so the plugins on top stay
+small.
 
-**Plugin authors** get:
+For plugin developers it also has the bits we kept rewriting:
 
-- `KotlinPlugin`, a plugin base class with a coroutine scope that is cancelled at shutdown
-- Hytale codecs backed by kotlinx.serialization, with serializers for common types (vectors, transforms)
-- message and formatting extensions
-- avatar and profile helpers
+- a plugin base class with a coroutine scope that gets cancelled when the plugin shuts down
+- Hytale codecs built on kotlinx.serialization (vectors and transforms included)
+- message and title helpers
+- player avatar / profile lookups
 
-Kayle is published as `com.degoos:kayle` for compiling against; declare `"Degoos:Kayle": "*"` in your plugin's
-manifest dependencies.
+To build against it, use `com.degoos:kayle` and add `"Degoos:Kayle": "*"` to your manifest's dependencies.
+
+Made by Gael Rial and Antonio Terrero (Degoos Team). Bugs and ideas go to GitHub issues.
