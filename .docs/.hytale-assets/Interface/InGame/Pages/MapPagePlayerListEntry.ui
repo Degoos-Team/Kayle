@@ -1,0 +1,32 @@
+$Common = "../../Common.ui";
+
+Button {
+  Style: (
+    Hovered: (
+      Background: #000000(0.2)
+    )
+  );
+  Disabled: true;
+  LayoutMode: Left;
+
+  Group #SameWorldIcon {
+    Anchor: (Width: 16, Height: 16, Left: 6);
+    Background: (TexturePath: "MapIcons/SameWorld.png");
+    Visible: false;
+    TooltipText: %client.map.playerList.inWorld;
+    TextTooltipStyle: $Common.@ButtonTextTooltipStyle;
+  }
+
+  Label #Username {
+    Text: "Player 1";
+    Style: (FontSize: 15, TextColor: #b7b8b9, VerticalAlignment: Center);
+    Anchor: (Height: 32, Left: 8);
+    FlexWeight: 1;
+  }
+
+  Label #Ping {
+    Text: "";
+    Style: (FontSize: 13, TextColor: #96a9be(0.6), VerticalAlignment: Center, HorizontalAlignment: End);
+    Anchor: (Height: 32, Width: 50, Right: 10);
+  }
+}
