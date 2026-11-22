@@ -1,10 +1,10 @@
 # CurseForge page
 
-What we paste into the Kayle project on CurseForge. Upload `Kayle-<version>-all.jar` from a tagged release, not a
+What goes into the Kayle project on CurseForge. Upload `Kayle-<version>-all.jar` from a tagged release, not a
 local build. Logo: `docs/curseforge/logo.png`.
 
 - Name: Kayle
-- Summary: The Kotlin library our Hytale plugins run on. Install it if a plugin asks for it.
+- Summary: The Kotlin library behind the Degoos Team's Hytale plugins. Install it if a plugin asks for it.
 - Category: Library / API
 - License: MIT
 - Source: https://github.com/Degoos-Team/Kayle
@@ -15,11 +15,11 @@ local build. Logo: `docs/curseforge/logo.png`.
 Kayle is a library, not something you play with. If a plugin says it needs Kayle, drop the JAR into `mods/` next to
 it and you're done. No config.
 
-Why it exists: we write our plugins in Kotlin, and shipping the whole Kotlin runtime inside every plugin got old fast.
-Kayle carries it once for the whole server (standard library, coroutines, serialization), so the plugins on top stay
+Why it exists: the Degoos Team writes its plugins in Kotlin, and shipping the whole Kotlin runtime inside every plugin
+got old fast. Kayle carries it once for the whole server (standard library, coroutines, serialization), so the plugins on top stay
 small.
 
-For plugin developers it also has the bits we kept rewriting:
+For plugin developers it also has the bits we kept rewriting across Degoos plugins:
 
 - a plugin base class with a coroutine scope that gets cancelled when the plugin shuts down
 - Hytale codecs built on kotlinx.serialization (vectors and transforms included)
